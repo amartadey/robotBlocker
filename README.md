@@ -1,9 +1,5 @@
 # RobotBlocker
 
-![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)
-![GitHub version](https://img.shields.io/badge/version-1.0.0-green.svg)
-![GitHub last commit](https://img.shields.io/github/last-commit/amartadey/robotBlocker)
-
 **RobotBlocker** is a lightweight, highly configurable JavaScript library designed to prevent search engine robots from indexing your web pages and following outbound links. Whether you're protecting a private site, a staging environment, or simply want to control crawler behavior, RobotBlocker provides a flexible, client-side solution with multiple layers of protection.
 
 ## Installation
@@ -84,3 +80,6 @@ Full anti-bot and anti-scraping protection:
 <meta name="bingbot" content="noindex, nofollow">
 ```
 
+
+
+![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)
