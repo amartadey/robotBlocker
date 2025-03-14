@@ -26,6 +26,7 @@ RobotBlocker offers a range of options to tailor its behavior. Below is the full
 ## Detailed Examples
 ### Example 1: Minimal Protection
 Focus on SEO control only:
+```html
 <script>
     window.RobotBlockerConfig = {
         noIndex: true,
@@ -36,8 +37,10 @@ Focus on SEO control only:
     };
 </script>
 <script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
+
 ### Example 2: Maximum Security
 Full anti-bot and anti-scraping protection:
+```html
 <script>
     window.RobotBlockerConfig = {
         blockBots: true,
@@ -55,8 +58,10 @@ Full anti-bot and anti-scraping protection:
     };
 </script>
 <script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
+
 ### Example 3: Version-Specific
 Pin to a stable release:
+```html
 <script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@v1.0.0/robotBlocker.js"></script>
 
 
