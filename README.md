@@ -37,7 +37,7 @@ Focus on SEO control only:
     };
 </script>
 <script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
-
+```
 ### Example 2: Maximum Security
 Full anti-bot and anti-scraping protection:
 ```html
@@ -58,12 +58,12 @@ Full anti-bot and anti-scraping protection:
     };
 </script>
 <script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
-
+```
 ### Example 3: Version-Specific
 Pin to a stable release:
 ```html
 <script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@v1.0.0/robotBlocker.js"></script>
-
+```
 
 
 
