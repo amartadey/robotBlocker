@@ -2,24 +2,65 @@
 
 ![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)
 ![GitHub version](https://img.shields.io/badge/version-1.0.0-green.svg)
-![GitHub last commit](https://img.shields.io/github/last-commit/yourusername/robotBlocker)
+![GitHub last commit](https://img.shields.io/github/last-commit/amartadey/robotBlocker)
 
 **RobotBlocker** is a lightweight, highly configurable JavaScript library designed to prevent search engine robots from indexing your web pages and following outbound links. Whether you're protecting a private site, a staging environment, or simply want to control crawler behavior, RobotBlocker provides a flexible, client-side solution with multiple layers of protection.
 
-## Table of Contents
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Basic Usage](#basic-usage)
-  - [Custom Configuration](#custom-configuration)
-- [Configuration Options](#configuration-options)
-- [Detailed Examples](#detailed-examples)
-- [How It Works](#how-it-works)
-- [Best Practices](#best-practices)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
-- [Support](#support)
+
+
+## Configuration Options
+RobotBlocker offers a range of options to tailor its behavior. Below is the full table of configuration settings:
+
+| Option          | Type    | Default          | Description                                                             |
+|-----------------|---------|------------------|-------------------------------------------------------------------------|
+| blockBots       | Boolean | true             | Enables detection and blocking of bots based on user agent patterns.    |
+| noIndex         | Boolean | true             | Adds noindex meta tags to prevent search engine indexing.               |
+| noFollowLinks   | Boolean | true             | Adds rel="nofollow noopener noreferrer" to all &lt;a&gt; tags.          |
+| blockRightClick | Boolean | true             | Disables right-click context menu to prevent easy content copying.      |
+| blockSelection  | Boolean | true             | Prevents text selection to deter scraping (may affect user experience). |
+| preventFraming  | Boolean | true             | Breaks out of iframes to prevent embedding by other sites.              |
+| obscureLocation | Boolean | false            | Obfuscates window.location to confuse bots (use with caution).          |
+| botPatterns     | Array   | [googlebot, ...] | Array of regex patterns to identify bots (customizable).                |
+
+
+## Detailed Examples
+### Example 1: Minimal Protection
+Focus on SEO control only:
+<script>
+    window.RobotBlockerConfig = {
+        noIndex: true,
+        noFollowLinks: true,
+        blockBots: false,
+        blockRightClick: false,
+        blockSelection: false
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
+### Example 2: Maximum Security
+Full anti-bot and anti-scraping protection:
+<script>
+    window.RobotBlockerConfig = {
+        blockBots: true,
+        noIndex: true,
+        noFollowLinks: true,
+        blockRightClick: true,
+        blockSelection: true,
+        preventFraming: true,
+        botPatterns: [
+            /googlebot/i,
+            /bingbot/i,
+            /slurp/i,
+            /mysecretbot/i
+        ]
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
+### Example 3: Version-Specific
+Pin to a stable release:
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@v1.0.0/robotBlocker.js"></script>
+
+
+
 
 ## Features
 - **Bot Detection and Blocking**: Identifies and stops common search engine bots.
@@ -37,4 +78,4 @@ Choose from multiple installation methods based on your project requirements.
 ### Option 1: Via CDN (Recommended)
 Leverage jsDelivr for fast, cached delivery:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/yourusername/robotBlocker@main/robotBlocker.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
