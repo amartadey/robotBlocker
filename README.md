@@ -6,7 +6,11 @@
 
 **RobotBlocker** is a lightweight, highly configurable JavaScript library designed to prevent search engine robots from indexing your web pages and following outbound links. Whether you're protecting a private site, a staging environment, or simply want to control crawler behavior, RobotBlocker provides a flexible, client-side solution with multiple layers of protection.
 
-
+## Installation
+### Via CDN (Recommended)
+Leverage jsDelivr for fast, cached delivery:
+```html
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
 
 ## Configuration Options
 RobotBlocker offers a range of options to tailor its behavior. Below is the full table of configuration settings:
@@ -36,7 +40,7 @@ Focus on SEO control only:
         blockSelection: false
     };
 </script>
-<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
 ```
 ### Example 2: Maximum Security
 Full anti-bot and anti-scraping protection:
@@ -57,7 +61,7 @@ Full anti-bot and anti-scraping protection:
         ]
     };
 </script>
-<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
 ```
 
 
@@ -72,11 +76,11 @@ Full anti-bot and anti-scraping protection:
 - **Customizable Settings**: Tailor the behavior to your specific needs.
 - **Zero Dependencies**: Works standalone with no external libraries required.
 
-## Installation
+## Meta Tags (Added By the Script)
 
-Choose from multiple installation methods based on your project requirements.
-
-### Option 1: Via CDN (Recommended)
-Leverage jsDelivr for fast, cached delivery:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"></script>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="bingbot" content="noindex, nofollow">
+```
+
