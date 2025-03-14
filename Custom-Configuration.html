@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Private Page</title>
+    <script>
+        window.RobotBlockerConfig = {
+            blockBots: true,          // Block known bots
+            noIndex: true,           // Prevent indexing
+            noFollowLinks: true,     // Prevent link following
+            blockRightClick: false,  // Allow right-click
+            blockSelection: false,   // Allow text selection
+            preventFraming: true,    // Prevent iframe embedding
+            obscureLocation: false,  // Don’t obscure window.location
+            botPatterns: [           // Custom bot patterns
+                /googlebot/i,
+                /bingbot/i,
+                /slurp/i,
+                /custombot/i
+            ]
+        };
+    </script>
+</head>
+<body>
+    <h1>Welcome to My Site</h1>
+    <p>This page has custom robot protection.</p>
+    <a href="https://example.com">Example Link</a>
+    <script src="https://cdn.jsdelivr.net/gh/yourusername/robotBlocker@main/robotBlocker.js"></script>
+</body>
+</html>
