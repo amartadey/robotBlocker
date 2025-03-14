@@ -1,0 +1,31 @@
+{
+    "name": "robotblocker",
+    "version": "1.0.0",
+    "description": "A configurable JavaScript library to prevent robot indexing and link following",
+    "main": "robotBlocker.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "build": "echo \"No build step required\" && exit 0"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/amartadey/robotBlocker.git"
+    },
+    "keywords": [
+      "seo",
+      "robot-blocker",
+      "noindex",
+      "nofollow",
+      "javascript",
+      "privacy"
+    ],
+    "author": "Amarta Dey",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/amartadey/robotBlocker/issues"
+    },
+    "homepage": "https://github.com/amartadey/robotBlocker#readme",
+    "files": [
+      "robotBlocker.js"
+    ]
+  }
