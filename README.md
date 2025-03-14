@@ -11,6 +11,7 @@
 Leverage jsDelivr for fast, cached delivery:
 ```html
 <script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
+```
 
 ## Configuration Options
 RobotBlocker offers a range of options to tailor its behavior. Below is the full table of configuration settings:
