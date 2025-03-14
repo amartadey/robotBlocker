@@ -2,9 +2,9 @@
 /**
  * RobotBlocker - A configurable JavaScript library to prevent robot indexing and link following
  * @version 1.0.0
- * @author Your Name
+ * @author Amarta Dey
  * @license MIT
- * @see https://github.com/yourusername/robotBlocker
+ * @see https://github.com/amartadey/robotBlocker
  */
 (function(window) {
     'use strict';
