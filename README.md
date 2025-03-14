@@ -10,9 +10,8 @@
 ### Via CDN (Recommended)
 Leverage jsDelivr for fast, cached delivery:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"></script>
 ```
-
 ## Configuration Options
 RobotBlocker offers a range of options to tailor its behavior. Below is the full table of configuration settings:
 
@@ -41,7 +40,7 @@ Focus on SEO control only:
         blockSelection: false
     };
 </script>
-<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"></script>
 ```
 ### Example 2: Maximum Security
 Full anti-bot and anti-scraping protection:
@@ -62,7 +61,7 @@ Full anti-bot and anti-scraping protection:
         ]
     };
 </script>
-<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@main/robotBlocker.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"></script>
 ```
 
 
