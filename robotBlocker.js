@@ -1,7 +1,6 @@
-// robotBlocker.js
 /**
  * RobotBlocker - A comprehensive JavaScript library to prevent robot indexing, scraping, and unauthorized access
- * @version 1.3.0
+ * @version 1.1.1
  * @author Amarta Dey
  * @license MIT
  * @see https://github.com/amartadey/robotBlocker
@@ -123,6 +122,19 @@
             }
         },
 
+        processLinks: function() {
+            const links = document.getElementsByTagName('a');
+            for (let link of links) {
+                link.setAttribute('rel', 'nofollow noopener noreferrer');
+                link.addEventListener('click', (e) => {
+                    if (!e.isTrusted) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+            }
+        },
+
         detectAndBlockBots: function() {
             const userAgent = navigator.userAgent.toLowerCase();
             const isBotDetected = config.botPatterns.some(pattern => pattern.test(userAgent));
@@ -139,6 +151,63 @@
                     window.stop();
                 }
             }
+        },
+
+        preventFraming: function() {
+            if (window.top !== window.self) {
+                window.top.location = window.self.location;
+            }
+        },
+
+        setXRobotsTag: function() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('HEAD', window.location.href);
+            xhr.setRequestHeader('X-Robots-Tag', 'noindex, nofollow');
+            xhr.send();
+        },
+
+        obscureLocation: function() {
+            Object.defineProperty(window, 'location', {
+                get: function() {
+                    return {
+                        href: '',
+                        pathname: '',
+                        toString: function() { return '' }
+                    };
+                },
+                configurable: false
+            });
+        },
+
+        blockDevTools: function() {
+            document.addEventListener('keydown', (e) => {
+                // Prevent F12, Ctrl+Shift+I, Ctrl+U
+                if ((e.key === 'F12') || 
+                    (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                    (e.ctrlKey && e.key === 'U')) {
+                    this.logSecurityViolation('DevTools Access');
+                    e.preventDefault();
+                    this.showAlert();
+                    return false;
+                }
+            });
+        },
+
+        preventDownload: function() {
+            // Prevent image downloading and text selection
+            const style = document.createElement('style');
+            style.textContent = `
+                body {
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
+                    user-select: none;
+                }
+                img {
+                    pointer-events: none;
+                }
+            `;
+            document.head.appendChild(style);
         },
 
         blockPrintScreen: function() {
@@ -219,28 +288,16 @@
             }
         },
 
-        preventFraming: function() {
-            if (window.top !== window.self) {
-                window.top.location = window.self.location;
+        logSecurityViolation: function(type) {
+            if (config.logAttempts) {
+                console.warn(`RobotBlocker: Security Violation - ${type}`);
             }
         },
-        setXRobotsTag: function() {
-            const xhr = new XMLHttpRequest();
-            xhr.open('HEAD', window.location.href);
-            xhr.setRequestHeader('X-Robots-Tag', 'noindex, nofollow');
-            xhr.send();
-        },
-        obscureLocation: function() {
-            Object.defineProperty(window, 'location', {
-                get: function() {
-                    return {
-                        href: '',
-                        pathname: '',
-                        toString: function() { return '' }
-                    };
-                },
-                configurable: false
-            });
+
+        showAlert: function() {
+            if (config.customAlertMessage) {
+                alert(config.customAlertMessage);
+            }
         }
     };
 
