@@ -1,7 +1,7 @@
 // robotBlocker.js
 /**
  * RobotBlocker - A comprehensive JavaScript library to prevent robot indexing, scraping, and unauthorized access
- * @version 1.2.0
+ * @version 1.3.0
  * @author Amarta Dey
  * @license MIT
  * @see https://github.com/amartadey/robotBlocker
