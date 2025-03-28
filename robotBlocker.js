@@ -1,7 +1,7 @@
 // robotBlocker.js
 /**
  * RobotBlocker - A comprehensive JavaScript library to prevent robot indexing, scraping, and unauthorized access
- * @version 1.1.0
+ * @version 1.1.1
  * @author Amarta Dey
  * @license MIT
  * @see https://github.com/amartadey/robotBlocker
@@ -50,6 +50,8 @@
             if (config.preventFraming) this.preventFraming();
             this.setXRobotsTag();
             if (config.obscureLocation) this.obscureLocation();
+            
+            // New methods from version 2 (optional based on config)
             if (config.blockDevTools) this.blockDevTools();
             if (config.disableDownload) this.preventDownload();
             if (config.blockPrintScreen) this.blockPrintScreen();
@@ -67,12 +69,18 @@
                 let existingTag = document.querySelector(`meta[name="${tag.name}"]`);
                 
                 if (config.forceMetaTags) {
-                    if (existingTag) existingTag.remove();
+                    // Remove existing tag if force is enabled
+                    if (existingTag) {
+                        existingTag.remove();
+                    }
+                    
+                    // Create and append new tag
                     const meta = document.createElement('meta');
                     meta.name = tag.name;
                     meta.content = tag.content;
                     document.head.appendChild(meta);
                 } else if (!existingTag) {
+                    // Only add if no existing tag when force is disabled
                     const meta = document.createElement('meta');
                     meta.name = tag.name;
                     meta.content = tag.content;
@@ -80,6 +88,7 @@
                 }
             });
 
+            // Add inline script to ensure tags are not removed (optional)
             if (config.forceMetaTags) {
                 const script = document.createElement('script');
                 script.textContent = `
@@ -94,8 +103,6 @@
                                     ];
                                     
                                     robotsTags.forEach(tag => {
-
-
                                         let existingTag = document.querySelector(\`meta[name="\${tag.name}"]\`);
                                         if (!existingTag) {
                                             const meta = document.createElement('meta');
@@ -107,7 +114,11 @@
                                 }
                             });
                         });
-                        observer.observe(document.head, { childList: true, subtree: true });
+                        
+                        observer.observe(document.head, { 
+                            childList: true, 
+                            subtree: true 
+                        });
                     })();
                 `;
                 document.head.appendChild(script);
@@ -116,6 +127,7 @@
 
         processLinks: function() {
             const processLink = (link) => {
+                // Ensure link is not already processed
                 if (!link.getAttribute('data-robotblocker-processed')) {
                     link.setAttribute('rel', 'nofollow noopener noreferrer');
                     link.setAttribute('data-robotblocker-processed', 'true');
@@ -123,31 +135,37 @@
                     link.addEventListener('click', (e) => {
                         if (!e.isTrusted) {
                             e.preventDefault();
-                            this.logSecurityViolation('Untrusted link click');
                             return false;
                         }
                     });
                 }
             };
 
+            // Process existing links
             const links = document.getElementsByTagName('a');
             Array.from(links).forEach(processLink);
 
-            if (config.noFollowLinks) {
-                const observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.type === 'childList') {
-                            mutation.addedNodes.forEach((node) => {
-                                if (node.nodeType === Node.ELEMENT_NODE) {
-                                    const links = node.tagName === 'A' ? [node] : node.querySelectorAll('a');
-                                    Array.from(links).forEach(processLink);
-                                }
-                            });
-                        }
-                    });
+            // Set up a mutation observer to process dynamically added links
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === Node.ELEMENT_NODE) {
+                                // Process links in the added node and its descendants
+                                const links = node.tagName === 'A' ? [node] : 
+                                    node.querySelectorAll('a');
+                                Array.from(links).forEach(processLink);
+                            }
+                        });
+                    }
                 });
-                observer.observe(document.body, { childList: true, subtree: true });
-            }
+            });
+
+            // Start observing the document with the configured parameters
+            observer.observe(document.body, { 
+                childList: true, 
+                subtree: true 
+            });
         },
 
         detectAndBlockBots: function() {
@@ -156,40 +174,29 @@
             
             if (isBotDetected) {
                 this.logSecurityViolation('Bot Detection');
+                
                 if (config.redirectBots) {
+                    // Redirect to specified URL if provided
                     window.location.href = config.redirectBots;
                 } else {
+                    // Default bot blocking behavior
                     document.body.innerHTML = '';
                     window.stop();
-                    this.showAlert();
                 }
             }
         },
 
         addEventListeners: function() {
             if (config.blockRightClick) {
-                document.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    this.logSecurityViolation('Right-click attempt');
-                });
+                document.addEventListener('contextmenu', (e) => e.preventDefault());
             }
             if (config.blockSelection) {
-                document.addEventListener('selectstart', (e) => {
-                    e.preventDefault();
-                    this.logSecurityViolation('Selection attempt');
-                });
-            }
-            if (config.blockCopy || config.blockCopyPaste) {
-                document.addEventListener('copy', (e) => {
-                    e.preventDefault();
-                    this.logSecurityViolation('Copy attempt');
-                });
+                document.addEventListener('selectstart', (e) => e.preventDefault());
             }
         },
 
         preventFraming: function() {
             if (window.top !== window.self) {
-                this.logSecurityViolation('Framing attempt');
                 window.top.location = window.self.location;
             }
         },
@@ -214,28 +221,31 @@
             });
         },
 
+        // New optional methods from version 2
         blockDevTools: function() {
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
                     e.preventDefault();
-                    this.logSecurityViolation('DevTools access attempt');
-                    this.showAlert();
+                    return false;
                 }
             });
         },
 
         preventDownload: function() {
-            document.querySelectorAll('img, video, audio').forEach(media => {
-                media.setAttribute('draggable', 'false');
-                media.setAttribute('controlsList', 'nodownload');
+            document.addEventListener('contextmenu', (e) => {
+                const target = e.target;
+                if (target.tagName === 'IMG' || target.tagName === 'VIDEO') {
+                    e.preventDefault();
+                    return false;
+                }
             });
         },
 
         blockPrintScreen: function() {
-            document.addEventListener('keyup', (e) => {
+            document.addEventListener('keydown', (e) => {
                 if (e.key === 'PrintScreen') {
-                    navigator.clipboard.writeText('');
-                    this.logSecurityViolation('PrintScreen attempt');
+                    e.preventDefault();
+                    return false;
                 }
             });
         },
@@ -243,7 +253,7 @@
         disableDragDrop: function() {
             document.addEventListener('dragstart', (e) => {
                 e.preventDefault();
-                this.logSecurityViolation('Drag attempt');
+                return false;
             });
         },
 
