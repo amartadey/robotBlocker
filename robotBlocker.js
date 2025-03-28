@@ -1,4 +1,3 @@
-// robotBlocker.js
 /**
  * RobotBlocker - A comprehensive JavaScript library to prevent robot indexing, scraping, and unauthorized access
  * @version 1.2.0
@@ -50,8 +49,6 @@
             if (config.preventFraming) this.preventFraming();
             this.setXRobotsTag();
             if (config.obscureLocation) this.obscureLocation();
-            
-            // New methods from version 2 (optional based on config)
             if (config.blockDevTools) this.blockDevTools();
             if (config.disableDownload) this.preventDownload();
             if (config.blockPrintScreen) this.blockPrintScreen();
@@ -59,103 +56,83 @@
         },
 
         addMetaTags: function() {
-            // Check if metaTags are already added
-            const existingMetas = document.querySelectorAll('meta[name="robots"], meta[name="googlebot"], meta[name="bingbot"]');
-            if (existingMetas.length >= 3) return;
-
             const metaTags = [
                 { name: "robots", content: "noindex, nofollow, noarchive, nosnippet" },
                 { name: "googlebot", content: "noindex, nofollow" },
                 { name: "bingbot", content: "noindex, nofollow" }
             ];
 
-            // Add meta tags
             metaTags.forEach(tag => {
-                const meta = document.createElement('meta');
-                meta.name = tag.name;
-                meta.content = tag.content;
-                document.head.appendChild(meta);
+                let existingTag = document.querySelector(`meta[name="${tag.name}"]`);
+                
+                if (config.forceMetaTags) {
+                    // Remove existing tag if force is enabled
+                    if (existingTag) {
+                        existingTag.remove();
+                    }
+                    
+                    // Create and append new tag
+                    const meta = document.createElement('meta');
+                    meta.name = tag.name;
+                    meta.content = tag.content;
+                    document.head.appendChild(meta);
+                } else if (!existingTag) {
+                    // Only add if no existing tag when force is disabled
+                    const meta = document.createElement('meta');
+                    meta.name = tag.name;
+                    meta.content = tag.content;
+                    document.head.appendChild(meta);
+                }
             });
 
             // Add inline script to ensure tags are not removed
-            const script = document.createElement('script');
-            script.textContent = `
-                (function() {
-                    const robotsTags = [
-                        { name: "robots", content: "noindex, nofollow, noarchive, nosnippet" },
-                        { name: "googlebot", content: "noindex, nofollow" },
-                        { name: "bingbot", content: "noindex, nofollow" }
-                    ];
-                    
-                    const checkAndAddTags = () => {
-                        robotsTags.forEach(tag => {
-                            let existingTag = document.querySelector(\`meta[name="\${tag.name}"]\`);
-                            if (!existingTag) {
-                                const meta = document.createElement('meta');
-                                meta.name = tag.name;
-                                meta.content = tag.content;
-                                document.head.appendChild(meta);
-                            }
+            if (config.forceMetaTags) {
+                const script = document.createElement('script');
+                script.textContent = `
+                    (function() {
+                        const observer = new MutationObserver((mutations) => {
+                            mutations.forEach((mutation) => {
+                                if (mutation.type === 'childList') {
+                                    const robotsTags = [
+                                        { name: "robots", content: "noindex, nofollow, noarchive, nosnippet" },
+                                        { name: "googlebot", content: "noindex, nofollow" },
+                                        { name: "bingbot", content: "noindex, nofollow" }
+                                    ];
+                                    
+                                    robotsTags.forEach(tag => {
+                                        let existingTag = document.querySelector(\`meta[name="\${tag.name}"]\`);
+                                        if (!existingTag) {
+                                            const meta = document.createElement('meta');
+                                            meta.name = tag.name;
+                                            meta.content = tag.content;
+                                            document.head.appendChild(meta);
+                                        }
+                                    });
+                                }
+                            });
                         });
-                    };
-                    
-                    // Initial check
-                    checkAndAddTags();
-                    
-                    // Observe for any changes to head
-                    const observer = new MutationObserver(checkAndAddTags);
-                    observer.observe(document.head, { 
-                        childList: true, 
-                        subtree: true 
-                    });
-                })();
-            `;
-            
-            // Append script to head
-            document.head.appendChild(script);
+                        
+                        observer.observe(document.head, { 
+                            childList: true, 
+                            subtree: true 
+                        });
+                    })();
+                `;
+                document.head.appendChild(script);
+            }
         },
 
         processLinks: function() {
-            const processLink = (link) => {
-                // Ensure link is not already processed
-                if (!link.getAttribute('data-robotblocker-processed')) {
-                    link.setAttribute('rel', 'nofollow noopener noreferrer');
-                    link.setAttribute('data-robotblocker-processed', 'true');
-                    
-                    link.addEventListener('click', (e) => {
-                        if (!e.isTrusted) {
-                            e.preventDefault();
-                            return false;
-                        }
-                    });
-                }
-            };
-
-            // Process existing links
             const links = document.getElementsByTagName('a');
-            Array.from(links).forEach(processLink);
-
-            // Set up a mutation observer to process dynamically added links
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'childList') {
-                        mutation.addedNodes.forEach((node) => {
-                            if (node.nodeType === Node.ELEMENT_NODE) {
-                                // Process links in the added node and its descendants
-                                const links = node.tagName === 'A' ? [node] : 
-                                    node.querySelectorAll('a');
-                                Array.from(links).forEach(processLink);
-                            }
-                        });
+            for (let link of links) {
+                link.setAttribute('rel', 'nofollow noopener noreferrer');
+                link.addEventListener('click', (e) => {
+                    if (!e.isTrusted) {
+                        e.preventDefault();
+                        return false;
                     }
                 });
-            });
-
-            // Start observing the document with the configured parameters
-            observer.observe(document.body, { 
-                childList: true, 
-                subtree: true 
-            });
+            }
         },
 
         detectAndBlockBots: function() {
@@ -173,15 +150,6 @@
                     document.body.innerHTML = '';
                     window.stop();
                 }
-            }
-        },
-
-        addEventListeners: function() {
-            if (config.blockRightClick) {
-                document.addEventListener('contextmenu', (e) => e.preventDefault());
-            }
-            if (config.blockSelection) {
-                document.addEventListener('selectstart', (e) => e.preventDefault());
             }
         },
 
@@ -211,29 +179,52 @@
             });
         },
 
-        // New optional methods from version 2
         blockDevTools: function() {
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                // Prevent F12, Ctrl+Shift+I, Ctrl+U
+                if ((e.key === 'F12') || 
+                    (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                    (e.ctrlKey && e.key === 'U')) {
+                    this.logSecurityViolation('DevTools Access');
                     e.preventDefault();
+                    this.showAlert();
                     return false;
                 }
             });
         },
 
         preventDownload: function() {
-            document.addEventListener('contextmenu', (e) => {
-                const target = e.target;
-                if (target.tagName === 'IMG' || target.tagName === 'VIDEO') {
-                    e.preventDefault();
-                    return false;
+            // Prevent image downloading and text selection
+            const style = document.createElement('style');
+            style.textContent = `
+                body {
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
+                    user-select: none;
                 }
-            });
+                img {
+                    pointer-events: none;
+                }
+            `;
+            document.head.appendChild(style);
         },
 
         blockPrintScreen: function() {
             document.addEventListener('keydown', (e) => {
+                // Attempt to prevent Print Screen
                 if (e.key === 'PrintScreen') {
+                    this.logSecurityViolation('Print Screen Attempt');
+                    e.preventDefault();
+                    this.showAlert();
+                    return false;
+                }
+            });
+
+            // For additional browsers
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'PrintScreen') {
+                    this.logSecurityViolation('Print Screen Attempt');
                     e.preventDefault();
                     return false;
                 }
@@ -242,19 +233,71 @@
 
         disableDragDrop: function() {
             document.addEventListener('dragstart', (e) => {
+                this.logSecurityViolation('Drag and Drop Attempt');
                 e.preventDefault();
                 return false;
-            });
+            }, false);
+
+            document.addEventListener('drop', (e) => {
+                this.logSecurityViolation('Drag and Drop Attempt');
+                e.preventDefault();
+                return false;
+            }, false);
+        },
+
+        addEventListeners: function() {
+            if (config.blockRightClick) {
+                document.addEventListener('contextmenu', (e) => {
+                    this.logSecurityViolation('Right Click');
+                    e.preventDefault();
+                });
+            }
+
+            if (config.blockSelection) {
+                document.addEventListener('selectstart', (e) => {
+                    this.logSecurityViolation('Text Selection');
+                    e.preventDefault();
+                });
+            }
+
+            if (config.blockCopy || config.blockCopyPaste) {
+                document.addEventListener('copy', (e) => {
+                    this.logSecurityViolation('Copy');
+                    e.preventDefault();
+                });
+
+                document.addEventListener('cut', (e) => {
+                    this.logSecurityViolation('Cut');
+                    e.preventDefault();
+                });
+
+                document.addEventListener('paste', (e) => {
+                    this.logSecurityViolation('Paste');
+                    e.preventDefault();
+                });
+            }
+
+            if (config.noFollowLinks) {
+                const observer = new MutationObserver(() => {
+                    this.processLinks();
+                });
+                observer.observe(document.body, { 
+                    childList: true, 
+                    subtree: true 
+                });
+            }
         },
 
         logSecurityViolation: function(type) {
             if (config.logAttempts) {
-                console.warn(`Security Violation: ${type} - ${new Date().toISOString()}`);
+                console.warn(`RobotBlocker: Security Violation - ${type}`);
             }
         },
 
         showAlert: function() {
-            alert(config.customAlertMessage);
+            if (config.customAlertMessage) {
+                alert(config.customAlertMessage);
+            }
         }
     };
 
