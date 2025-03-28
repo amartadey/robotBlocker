@@ -1,7 +1,7 @@
 // robotBlocker.js
 /**
  * RobotBlocker - A comprehensive JavaScript library to prevent robot indexing, scraping, and unauthorized access
- * @version 1.1.1
+ * @version 1.2.0
  * @author Amarta Dey
  * @license MIT
  * @see https://github.com/amartadey/robotBlocker
@@ -59,70 +59,60 @@
         },
 
         addMetaTags: function() {
+            // Check if metaTags are already added
+            const existingMetas = document.querySelectorAll('meta[name="robots"], meta[name="googlebot"], meta[name="bingbot"]');
+            if (existingMetas.length >= 3) return;
+
             const metaTags = [
                 { name: "robots", content: "noindex, nofollow, noarchive, nosnippet" },
                 { name: "googlebot", content: "noindex, nofollow" },
                 { name: "bingbot", content: "noindex, nofollow" }
             ];
 
+            // Add meta tags
             metaTags.forEach(tag => {
-                let existingTag = document.querySelector(`meta[name="${tag.name}"]`);
-                
-                if (config.forceMetaTags) {
-                    // Remove existing tag if force is enabled
-                    if (existingTag) {
-                        existingTag.remove();
-                    }
-                    
-                    // Create and append new tag
-                    const meta = document.createElement('meta');
-                    meta.name = tag.name;
-                    meta.content = tag.content;
-                    document.head.appendChild(meta);
-                } else if (!existingTag) {
-                    // Only add if no existing tag when force is disabled
-                    const meta = document.createElement('meta');
-                    meta.name = tag.name;
-                    meta.content = tag.content;
-                    document.head.appendChild(meta);
-                }
+                const meta = document.createElement('meta');
+                meta.name = tag.name;
+                meta.content = tag.content;
+                document.head.appendChild(meta);
             });
 
-            // Add inline script to ensure tags are not removed (optional)
-            if (config.forceMetaTags) {
-                const script = document.createElement('script');
-                script.textContent = `
-                    (function() {
-                        const observer = new MutationObserver((mutations) => {
-                            mutations.forEach((mutation) => {
-                                if (mutation.type === 'childList') {
-                                    const robotsTags = [
-                                        { name: "robots", content: "noindex, nofollow, noarchive, nosnippet" },
-                                        { name: "googlebot", content: "noindex, nofollow" },
-                                        { name: "bingbot", content: "noindex, nofollow" }
-                                    ];
-                                    
-                                    robotsTags.forEach(tag => {
-                                        let existingTag = document.querySelector(\`meta[name="\${tag.name}"]\`);
-                                        if (!existingTag) {
-                                            const meta = document.createElement('meta');
-                                            meta.name = tag.name;
-                                            meta.content = tag.content;
-                                            document.head.appendChild(meta);
-                                        }
-                                    });
-                                }
-                            });
+            // Add inline script to ensure tags are not removed
+            const script = document.createElement('script');
+            script.textContent = `
+                (function() {
+                    const robotsTags = [
+                        { name: "robots", content: "noindex, nofollow, noarchive, nosnippet" },
+                        { name: "googlebot", content: "noindex, nofollow" },
+                        { name: "bingbot", content: "noindex, nofollow" }
+                    ];
+                    
+                    const checkAndAddTags = () => {
+                        robotsTags.forEach(tag => {
+                            let existingTag = document.querySelector(\`meta[name="\${tag.name}"]\`);
+                            if (!existingTag) {
+                                const meta = document.createElement('meta');
+                                meta.name = tag.name;
+                                meta.content = tag.content;
+                                document.head.appendChild(meta);
+                            }
                         });
-                        
-                        observer.observe(document.head, { 
-                            childList: true, 
-                            subtree: true 
-                        });
-                    })();
-                `;
-                document.head.appendChild(script);
-            }
+                    };
+                    
+                    // Initial check
+                    checkAndAddTags();
+                    
+                    // Observe for any changes to head
+                    const observer = new MutationObserver(checkAndAddTags);
+                    observer.observe(document.head, { 
+                        childList: true, 
+                        subtree: true 
+                    });
+                })();
+            `;
+            
+            // Append script to head
+            document.head.appendChild(script);
         },
 
         processLinks: function() {
