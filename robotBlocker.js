@@ -1,7 +1,7 @@
 // robotBlocker.js
 /**
  * RobotBlocker - A comprehensive JavaScript library to prevent robot indexing, scraping, and unauthorized access
- * @version 1.2.0
+ * @version 1.1.0
  * @author Amarta Dey
  * @license MIT
  * @see https://github.com/amartadey/robotBlocker
@@ -67,18 +67,12 @@
                 let existingTag = document.querySelector(`meta[name="${tag.name}"]`);
                 
                 if (config.forceMetaTags) {
-                    // Remove existing tag if force is enabled
-                    if (existingTag) {
-                        existingTag.remove();
-                    }
-                    
-                    // Create and append new tag
+                    if (existingTag) existingTag.remove();
                     const meta = document.createElement('meta');
                     meta.name = tag.name;
                     meta.content = tag.content;
                     document.head.appendChild(meta);
                 } else if (!existingTag) {
-                    // Only add if no existing tag when force is disabled
                     const meta = document.createElement('meta');
                     meta.name = tag.name;
                     meta.content = tag.content;
@@ -86,7 +80,6 @@
                 }
             });
 
-            // Add inline script to ensure tags are not removed
             if (config.forceMetaTags) {
                 const script = document.createElement('script');
                 script.textContent = `
@@ -101,6 +94,8 @@
                                     ];
                                     
                                     robotsTags.forEach(tag => {
+
+
                                         let existingTag = document.querySelector(\`meta[name="\${tag.name}"]\`);
                                         if (!existingTag) {
                                             const meta = document.createElement('meta');
@@ -112,14 +107,46 @@
                                 }
                             });
                         });
-                        
-                        observer.observe(document.head, { 
-                            childList: true, 
-                            subtree: true 
-                        });
+                        observer.observe(document.head, { childList: true, subtree: true });
                     })();
                 `;
                 document.head.appendChild(script);
+            }
+        },
+
+        processLinks: function() {
+            const processLink = (link) => {
+                if (!link.getAttribute('data-robotblocker-processed')) {
+                    link.setAttribute('rel', 'nofollow noopener noreferrer');
+                    link.setAttribute('data-robotblocker-processed', 'true');
+                    
+                    link.addEventListener('click', (e) => {
+                        if (!e.isTrusted) {
+                            e.preventDefault();
+                            this.logSecurityViolation('Untrusted link click');
+                            return false;
+                        }
+                    });
+                }
+            };
+
+            const links = document.getElementsByTagName('a');
+            Array.from(links).forEach(processLink);
+
+            if (config.noFollowLinks) {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'childList') {
+                            mutation.addedNodes.forEach((node) => {
+                                if (node.nodeType === Node.ELEMENT_NODE) {
+                                    const links = node.tagName === 'A' ? [node] : node.querySelectorAll('a');
+                                    Array.from(links).forEach(processLink);
+                                }
+                            });
+                        }
+                    });
+                });
+                observer.observe(document.body, { childList: true, subtree: true });
             }
         },
 
@@ -129,97 +156,106 @@
             
             if (isBotDetected) {
                 this.logSecurityViolation('Bot Detection');
-                
                 if (config.redirectBots) {
-                    // Redirect to specified URL if provided
                     window.location.href = config.redirectBots;
                 } else {
-                    // Default bot blocking behavior
                     document.body.innerHTML = '';
                     window.stop();
+                    this.showAlert();
                 }
             }
         },
 
-        blockPrintScreen: function() {
-            document.addEventListener('keydown', (e) => {
-                // Attempt to prevent Print Screen
-                if (e.key === 'PrintScreen') {
-                    this.logSecurityViolation('Print Screen Attempt');
+        addEventListeners: function() {
+            if (config.blockRightClick) {
+                document.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
+                    this.logSecurityViolation('Right-click attempt');
+                });
+            }
+            if (config.blockSelection) {
+                document.addEventListener('selectstart', (e) => {
+                    e.preventDefault();
+                    this.logSecurityViolation('Selection attempt');
+                });
+            }
+            if (config.blockCopy || config.blockCopyPaste) {
+                document.addEventListener('copy', (e) => {
+                    e.preventDefault();
+                    this.logSecurityViolation('Copy attempt');
+                });
+            }
+        },
+
+        preventFraming: function() {
+            if (window.top !== window.self) {
+                this.logSecurityViolation('Framing attempt');
+                window.top.location = window.self.location;
+            }
+        },
+
+        setXRobotsTag: function() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('HEAD', window.location.href);
+            xhr.setRequestHeader('X-Robots-Tag', 'noindex, nofollow');
+            xhr.send();
+        },
+
+        obscureLocation: function() {
+            Object.defineProperty(window, 'location', {
+                get: function() {
+                    return {
+                        href: '',
+                        pathname: '',
+                        toString: function() { return '' }
+                    };
+                },
+                configurable: false
+            });
+        },
+
+        blockDevTools: function() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                    e.preventDefault();
+                    this.logSecurityViolation('DevTools access attempt');
                     this.showAlert();
-                    return false;
                 }
             });
+        },
 
-            // For additional browsers
+        preventDownload: function() {
+            document.querySelectorAll('img, video, audio').forEach(media => {
+                media.setAttribute('draggable', 'false');
+                media.setAttribute('controlsList', 'nodownload');
+            });
+        },
+
+        blockPrintScreen: function() {
             document.addEventListener('keyup', (e) => {
                 if (e.key === 'PrintScreen') {
-                    this.logSecurityViolation('Print Screen Attempt');
-                    e.preventDefault();
-                    return false;
+                    navigator.clipboard.writeText('');
+                    this.logSecurityViolation('PrintScreen attempt');
                 }
             });
         },
 
         disableDragDrop: function() {
             document.addEventListener('dragstart', (e) => {
-                this.logSecurityViolation('Drag and Drop Attempt');
                 e.preventDefault();
-                return false;
-            }, false);
-
-            document.addEventListener('drop', (e) => {
-                this.logSecurityViolation('Drag and Drop Attempt');
-                e.preventDefault();
-                return false;
-            }, false);
+                this.logSecurityViolation('Drag attempt');
+            });
         },
 
-        addEventListeners: function() {
-            if (config.blockRightClick) {
-                document.addEventListener('contextmenu', (e) => {
-                    this.logSecurityViolation('Right Click');
-                    e.preventDefault();
-                });
-            }
-
-            if (config.blockSelection) {
-                document.addEventListener('selectstart', (e) => {
-                    this.logSecurityViolation('Text Selection');
-                    e.preventDefault();
-                });
-            }
-
-            if (config.blockCopy || config.blockCopyPaste) {
-                document.addEventListener('copy', (e) => {
-                    this.logSecurityViolation('Copy');
-                    e.preventDefault();
-                });
-
-                document.addEventListener('cut', (e) => {
-                    this.logSecurityViolation('Cut');
-                    e.preventDefault();
-                });
-
-                document.addEventListener('paste', (e) => {
-                    this.logSecurityViolation('Paste');
-                    e.preventDefault();
-                });
-            }
-
-            if (config.noFollowLinks) {
-                const observer = new MutationObserver(() => {
-                    this.processLinks();
-                });
-                observer.observe(document.body, { 
-                    childList: true, 
-                    subtree: true 
-                });
+        logSecurityViolation: function(type) {
+            if (config.logAttempts) {
+                console.warn(`Security Violation: ${type} - ${new Date().toISOString()}`);
             }
         },
 
-        // ... (rest of the previous implementation remains the same)
+        showAlert: function() {
+            alert(config.customAlertMessage);
+        }
     };
 
     // Initialize when DOM is loaded
