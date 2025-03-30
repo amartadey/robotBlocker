@@ -47,7 +47,18 @@ Leverage jsDelivr for fast, cached delivery:
 <script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"></script>
 ```
 
-### 2. Maximum Security
+### 2. Allow Right Click and Dev Tools
+```html
+<script>
+     window.RobotBlockerConfig = {
+        blockRightClick: false,
+        blockDevTools: false,
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"></script>
+```
+
+### 3. Maximum Security
 ```html
 <script>
     window.RobotBlockerConfig = {
