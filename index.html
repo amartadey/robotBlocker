@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RobotBlocker - JavaScript Library for Website Protection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root {
+            --primary: #007bff;
+            --primary-light: rgba(0, 123, 255, 0.1);
+            --secondary: #6c757d;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --border: #dee2e6;
+            --success: #28a745;
+            --radius: 4px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-code: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-main);
+            font-size: 15px;
+            line-height: 1.5;
+            color: var(--dark);
+            background-color: #fff;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        header {
+            padding: 1.5rem 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            color: var(--secondary);
+            font-size: 1rem;
+        }
+        
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1.25rem 0 0.75rem;
+            color: var(--dark);
+        }
+        
+        p, ul, ol {
+            margin-bottom: 1rem;
+        }
+        
+        ul, ol {
+            padding-left: 1.5rem;
+        }
+        
+        li {
+            margin-bottom: 0.3rem;
+        }
+        
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        code:not([class*="language-"]) {
+            font-family: var(--font-code);
+            padding: 0.15rem 0.3rem;
+            font-size: 0.85em;
+            background-color: var(--light);
+            border-radius: var(--radius);
+            color: #e83e8c;
+        }
+        
+        pre {
+            position: relative;
+            margin: 1rem 0;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            font-size: 0.85rem;
+        }
+        
+        pre code {
+            padding: 0;
+            font-size: inherit;
+            color: inherit;
+            background-color: transparent;
+            border-radius: 0;
+        }
+        
+        table {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        table th,
+        table td {
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+        }
+        
+        table th {
+            background-color: var(--light);
+            font-weight: 600;
+            text-align: left;
+        }
+        
+        .emoji {
+            margin-right: 0.5rem;
+            opacity: 0.8;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            background-color: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 3px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        
+        .copy-button:hover {
+            opacity: 1;
+        }
+        
+        .copy-success {
+            background-color: var(--success) !important;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .feature-card {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background-color: white;
+        }
+        
+        .feature-card strong {
+            color: var(--primary);
+        }
+        
+        .examples {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.85rem;
+            color: var(--secondary);
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>RobotBlocker</h1>
+            <p>A comprehensive JavaScript library designed to prevent search engine robots from indexing your web pages, protect against content scraping, and enhance website security.</p>
+        </header>
+
+        <div class="section">
+            <h2><span class="emoji">📦</span>Installation</h2>
+            <p>Leverage jsDelivr for fast, cached delivery:</p>
+            <pre><code class="language-html">&lt;script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"&gt;&lt;/script&gt;</code></pre>
+        </div>
+
+        <div class="section">
+            <h2><span class="emoji">🛠️</span>Configuration Options</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Option</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>blockBots</code></td>
+                        <td>Boolean</td>
+                        <td><code>true</code></td>
+                        <td>Detect and block bots based on user agent patterns</td>
+                    </tr>
+                    <tr>
+                        <td><code>noIndex</code></td>
+                        <td>Boolean</td>
+                        <td><code>true</code></td>
+                        <td>Add noindex meta tags</td>
+                    </tr>
+                    <tr>
+                        <td><code>noFollowLinks</code></td>
+                        <td>Boolean</td>
+                        <td><code>true</code></td>
+                        <td>Add <code>nofollow</code> to all links</td>
+                    </tr>
+                    <tr>
+                        <td><code>blockRightClick</code></td>
+                        <td>Boolean</td>
+                        <td><code>true</code></td>
+                        <td>Disable right-click context menu</td>
+                    </tr>
+                    <tr>
+                        <td><code>blockSelection</code></td>
+                        <td>Boolean</td>
+                        <td><code>true</code></td>
+                        <td>Prevent text selection</td>
+                    </tr>
+                    <tr>
+                        <td><code>preventFraming</code></td>
+                        <td>Boolean</td>
+                        <td><code>true</code></td>
+                        <td>Break out of iframes</td>
+                    </tr>
+                    <tr>
+                        <td><code>obscureLocation</code></td>
+                        <td>Boolean</td>
+                        <td><code>false</code></td>
+                        <td>Obfuscate <code>window.location</code> (might break functionality)</td>
+                    </tr>
+                    <tr>
+                        <td><code>blockDevTools</code></td>
+                        <td>Boolean</td>
+                        <td><code>true</code></td>
+                        <td>Disable F12 and browser developer tools</td>
+                    </tr>
+                    <tr>
+                        <td><code>blockCopy</code></td>
+                        <td>Boolean</td>
+                        <td><code>true</code></td>
+                        <td>Prevent copy functionality</td>
+                    </tr>
+                    <tr>
+                        <td><code>disableDownload</code></td>
+                        <td>Boolean</td>
+                        <td><code>true</code></td>
+                        <td>Prevent downloading of images and text selection</td>
+                    </tr>
+                    <tr>
+                        <td><code>blockPrintScreen</code></td>
+                        <td>Boolean</td>
+                        <td><code>false</code></td>
+                        <td>Attempt to block print screen (limited effectiveness)</td>
+                    </tr>
+                    <tr>
+                        <td><code>disableDragDrop</code></td>
+                        <td>Boolean</td>
+                        <td><code>false</code></td>
+                        <td>Prevent dragging of images/content</td>
+                    </tr>
+                    <tr>
+                        <td><code>redirectBots</code></td>
+                        <td>String/Null</td>
+                        <td><code>null</code></td>
+                        <td>Redirect bots to a specified URL (null = no redirect)</td>
+                    </tr>
+                    <tr>
+                        <td><code>blockCopyPaste</code></td>
+                        <td>Boolean</td>
+                        <td><code>false</code></td>
+                        <td>Prevent copy-paste actions</td>
+                    </tr>
+                    <tr>
+                        <td><code>logAttempts</code></td>
+                        <td>Boolean</td>
+                        <td><code>false</code></td>
+                        <td>Log security violation attempts to console</td>
+                    </tr>
+                    <tr>
+                        <td><code>forceMetaTags</code></td>
+                        <td>Boolean</td>
+                        <td><code>true</code></td>
+                        <td>Force meta tags even if overwritten by other plugins</td>
+                    </tr>
+                    <tr>
+                        <td><code>customAlertMessage</code></td>
+                        <td>String</td>
+                        <td><code>'Access Denied'</code></td>
+                        <td>Custom message displayed for security violations</td>
+                    </tr>
+                    <tr>
+                        <td><code>botPatterns</code></td>
+                        <td>Array of RegExp</td>
+                        <td><code>[googlebot, bingbot, ...]</code></td>
+                        <td>Array of regex patterns to identify bots (customizable)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2><span class="emoji">📝</span>Usage Examples</h2>
+            <div class="examples">
+                <div>
+                    <h3>1. Minimal Protection</h3>
+                    <pre><code class="language-html">&lt;script&gt;
+    window.RobotBlockerConfig = {
+        noIndex: true,
+        noFollowLinks: true
+    };
+&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <div>
+                    <h3>2. Allow Right Click and Dev Tools</h3>
+                    <pre><code class="language-html">&lt;script&gt;
+     window.RobotBlockerConfig = {
+        blockRightClick: false,
+        blockDevTools: false,
+    };
+&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <div>
+                    <h3>3. Maximum Security</h3>
+                    <pre><code class="language-html">&lt;script&gt;
+    window.RobotBlockerConfig = {
+        blockBots: true,
+        noIndex: true,
+        noFollowLinks: true,
+        blockRightClick: true,
+        blockSelection: true,
+        blockDevTools: true,
+        blockPrintScreen: true,
+        disableDragDrop: true,
+        redirectBots: 'https://yoursite.com/bot-redirect',
+        logAttempts: true,
+        botPatterns: [
+            /googlebot/i,
+            /bingbot/i,
+            /mysecretbot/i
+        ]
+    };
+&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <div>
+                    <h3>4. WordPress Compatibility</h3>
+                    <pre><code class="language-html">&lt;script&gt;
+    window.RobotBlockerConfig = {
+        forceMetaTags: true,
+        noIndex: true,
+        blockBots: true
+    };
+&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"&gt;&lt;/script&gt;</code></pre>
+                </div>
+            </div>
+
+            <h3>Meta Tag Handling for WordPress</h3>
+            <p>The library now includes a special mechanism to ensure meta tags persist:</p>
+            <ul>
+                <li><code>forceMetaTags: true</code> adds a mutation observer to recreate meta tags if removed</li>
+                <li>Works around conflicts with WordPress SEO plugins</li>
+                <li>Provides more reliable noindex/nofollow implementation</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><span class="emoji">🌐</span>Browser Compatibility</h2>
+            <ul>
+                <li>Chrome</li>
+                <li>Firefox</li>
+                <li>Safari</li>
+                <li>Edge</li>
+                <li>Modern browsers with ES6+ support</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><span class="emoji">⚠️</span>Important Considerations</h2>
+            <ul>
+                <li>Some security features might impact user experience</li>
+                <li>Not a substitute for server-side security</li>
+                <li>Test thoroughly in your specific environment</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><span class="emoji">🚀</span>Performance</h2>
+            <ul>
+                <li>Lightweight library</li>
+                <li>Minimal performance overhead</li>
+                <li>No external dependencies</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Notes on New Features</h2>
+            <ul>
+                <li><strong>Print Screen Blocking</strong>: Not 100% effective due to browser limitations</li>
+                <li><strong>Bot Redirection</strong>: Allows custom handling of bot traffic</li>
+                <li><strong>Drag and Drop Prevention</strong>: Stops content dragging</li>
+                <li><strong>Meta Tag Forcing</strong>: Helps maintain SEO control in complex CMS environments</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <strong>Bot Detection and Blocking</strong>: Identifies and stops common search engine bots.
+                </div>
+                <div class="feature-card">
+                    <strong>Noindex Implementation</strong>: Adds meta tags to prevent page indexing.
+                </div>
+                <div class="feature-card">
+                    <strong>Nofollow Enforcement</strong>: Applies <code>nofollow</code> to all links, preventing link juice transfer.
+                </div>
+                <div class="feature-card">
+                    <strong>Anti-Scraping Measures</strong>: Optional restrictions on right-click and text selection.
+                </div>
+                <div class="feature-card">
+                    <strong>Iframe Prevention</strong>: Ensures your content can't be embedded elsewhere.
+                </div>
+                <div class="feature-card">
+                    <strong>Customizable Settings</strong>: Tailor the behavior to your specific needs.
+                </div>
+                <div class="feature-card">
+                    <strong>Zero Dependencies</strong>: Works standalone with no external libraries required.
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Compatibility</h2>
+            <ul>
+                <li>Modern browsers (Chrome, Firefox, Safari, Edge)</li>
+                <li>WordPress and other CMS platforms</li>
+                <li>Lightweight with minimal performance impact</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><span class="emoji">📄</span>License</h2>
+            <p><span class="badge">MIT License</span></p>
+        </div>
+
+        <div class="section">
+            <h2><span class="emoji">📧</span>Contact</h2>
+            <p>Amarta Dey - <a href="https://github.com/amartadey">GitHub Profile</a></p>
+        </div>
+
+        <div class="section">
+            <h2><span class="emoji">🌟</span>Show Your Support</h2>
+            <p>Give a ⭐️ if this project helps you!</p>
+        </div>
+
+        <footer>
+            RobotBlocker Documentation © 2025
+        </footer>
+    </div>
+
+    <!-- Prism JS for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- Copy to clipboard functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add copy buttons to all code blocks
+            document.querySelectorAll('pre').forEach((pre) => {
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-button';
+                copyButton.textContent = 'Copy';
+                
+                copyButton.addEventListener('click', () => {
+                    const code = pre.querySelector('code');
+                    navigator.clipboard.writeText(code.textContent).then(() => {
+                        copyButton.textContent = 'Copied!';
+                        copyButton.classList.add('copy-success');
+                        
+                        setTimeout(() => {
+                            copyButton.textContent = 'Copy';
+                            copyButton.classList.remove('copy-success');
+                        }, 2000);
+                    });
+                });
+                
+                pre.appendChild(copyButton);
+            });
+        });
+    </script>
+</body>
+</html>

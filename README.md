@@ -82,7 +82,7 @@ Leverage jsDelivr for fast, cached delivery:
 <script src="https://cdn.jsdelivr.net/gh/amartadey/robotBlocker@latest/robotBlocker.js"></script>
 ```
 
-### 3. WordPress Compatibility
+### 4. WordPress Compatibility
 ```html
 <script>
     window.RobotBlockerConfig = {
